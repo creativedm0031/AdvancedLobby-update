@@ -1,6 +1,11 @@
 # AdvancedLobby-update
 
-Uptake of the [AdvancedLobby](https://github.com/cyne79/AdvancedLobby) plugin (by cyne) for current Minecraft versions.
+Uptake of the [AdvancedLobby](https://github.com/cyne79/AdvancedLobby) plugin for current Minecraft versions.
+
+* **Original author:** cyne ([cyne79/AdvancedLobby](https://github.com/cyne79/AdvancedLobby))
+* **Updated for Minecraft 26.3 by:** CreativeDM
+
+Current version: **2.0**
 
 ## Supported versions
 
@@ -17,7 +22,7 @@ mvn clean package
 
 The plugin jar is created at `target/AdvancedLobby-<version>.jar`.
 
-## Changes compared to the original 1.2
+## Changes in 2.0 (compared to the original 1.2)
 
 * Built against `spigot-api 26.3-R0.1-SNAPSHOT`, Java 25, `api-version: '26.3'`
 * Removed all NMS / CraftBukkit reflection (did not work anymore since the server packages are no longer versioned):

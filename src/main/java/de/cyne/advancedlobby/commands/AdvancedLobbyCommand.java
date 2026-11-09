@@ -221,6 +221,7 @@ public class AdvancedLobbyCommand implements CommandExecutor {
         sender.sendMessage("");
         sender.sendMessage("§8┃ §b● §8┃ §bAdvancedLobby §8× §av"
                 + AdvancedLobby.getInstance().getDescription().getVersion() + " §7by cyne");
+        sender.sendMessage("§8┃ §b● §8┃ §7Updated for 26.3 by §bCreativeDM");
         sender.sendMessage("§8┃ §b● §8┃ ");
         sender.sendMessage("§8┃ §b● §8┃ §8/§fadvancedlobby reload §8- §7Reload the configuration files");
         sender.sendMessage("§8┃ §b● §8┃ §8/§fadvancedlobby location §8- §7Manage the locations");

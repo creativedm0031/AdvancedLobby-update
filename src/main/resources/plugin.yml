@@ -1,6 +1,7 @@
 name: AdvancedLobby
 version: ${project.version}
-author: cyne
+authors: [cyne, CreativeDM]
+description: 'Lobby plugin by cyne - updated for Minecraft 26.3 by CreativeDM'
 main: de.cyne.advancedlobby.AdvancedLobby
 api-version: '26.3'
 softdepend: [PlaceholderAPI]
