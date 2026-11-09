@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0ea5e9"/>
+      <stop offset="0.55" stop-color="#6366f1"/>
+      <stop offset="1" stop-color="#a855f7"/>
+    </linearGradient>
+    <linearGradient id="top" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="1" stop-color="#e0e7ff"/>
+    </linearGradient>
+    <linearGradient id="left" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#c7d2fe"/>
+      <stop offset="1" stop-color="#a5b4fc"/>
+    </linearGradient>
+    <linearGradient id="right" x1="1" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#818cf8"/>
+      <stop offset="1" stop-color="#6366f1"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0.5" cy="0.35" r="0.6">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.35"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="14" stdDeviation="14" flood-color="#1e1b4b" flood-opacity="0.45"/>
+    </filter>
+  </defs>
+
+  <rect width="512" height="512" rx="112" fill="url(#bg)"/>
+  <rect width="512" height="512" rx="112" fill="url(#glow)"/>
+
+  <!-- isometric block (lobby / spawn) -->
+  <g filter="url(#shadow)">
+    <polygon points="256,92 404,177 256,262 108,177" fill="url(#top)"/>
+    <polygon points="108,177 256,262 256,432 108,347" fill="url(#left)"/>
+    <polygon points="404,177 256,262 256,432 404,347" fill="url(#right)"/>
+  </g>
+
+  <!-- portal / doorway on left face -->
+  <polygon points="150,250 214,287 214,380 150,343" fill="#312e81" opacity="0.9"/>
+  <polygon points="160,262 204,287 204,368 160,343" fill="#22d3ee" opacity="0.85"/>
+
+  <!-- stylised "A" on right face -->
+  <g fill="#ffffff">
+    <polygon points="330,240 352,227 382,330 364,341"/>
+    <polygon points="330,240 352,227 312,363 294,373"/>
+    <polygon points="310,312 362,282 367,299 315,329"/>
+  </g>
+
+  <!-- star sparkle -->
+  <path d="M256 130 l10 24 24 10 -24 10 -10 24 -10 -24 -24 -10 24 -10z" fill="#6366f1"/>
+</svg>
