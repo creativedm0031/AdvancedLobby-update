@@ -20,7 +20,7 @@ Legacy versions (1.8 – 1.12) are no longer supported by this fork.
 mvn clean package
 ```
 
-The plugin jar is created at `target/AdvancedLobby-<version>.jar`.
+The plugin jar is created at `target/AdvancedLobby-<version>-26.3.jar`.
 
 ## Changes in 2.0 (compared to the original 1.2)
 
