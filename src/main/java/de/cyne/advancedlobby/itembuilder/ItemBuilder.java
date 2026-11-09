@@ -26,9 +26,12 @@ public class ItemBuilder extends ItemStack {
     private ItemMeta meta;
 
     public ItemBuilder(Material material, int amount, short durability) {
-        this.setType(material);
-        this.setAmount(amount);
-        this.setDurability(durability);
+        // Must use a public ItemStack constructor: on Paper the ItemStack delegates to a server-backed
+        // stack that is only created there (the protected no-arg constructor leaves it null).
+        super(material == null ? Material.BARRIER : material, amount);
+        if (durability != 0) {
+            this.setDurability(durability);
+        }
         this.meta = this.getItemMeta();
     }
 

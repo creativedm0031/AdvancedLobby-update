@@ -5,7 +5,7 @@ Uptake of the [AdvancedLobby](https://github.com/cyne79/AdvancedLobby) plugin fo
 * **Original author:** cyne ([cyne79/AdvancedLobby](https://github.com/cyne79/AdvancedLobby))
 * **Updated for Minecraft 26.3 by:** CreativeDM
 
-Current version: **2.0**
+Current version: **2.0.1**
 
 ## Supported versions
 
