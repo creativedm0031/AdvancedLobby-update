@@ -94,7 +94,7 @@ jumppads:
 #Motd settings
 motd:
   enabled: true
-  first_line: '  &bAdvancedLobby &8▶ &7Minecraft Network &8┃ &8[&f1.8&8-&f1.12.2&8]'
+  first_line: '  &bAdvancedLobby &8▶ &7Minecraft Network &8┃ &8[&f26.3&8]'
   second_line: '          &aNow &a&lONLINE &8● &7Twitter &8» §f@Unknown'
 
 #Chat format settings
