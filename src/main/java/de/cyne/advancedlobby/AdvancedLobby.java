@@ -63,7 +63,7 @@ public class AdvancedLobby extends JavaPlugin {
     @Override
     public void onEnable() {
         instance = this;
-        getLogger().info("AdvancedLobby v" + getDescription().getVersion() + " by cyne - updated for Minecraft 26.3 by CreativeDM");
+        getLogger().info("AdvancedLobby v" + getDescription().getVersion() + " by cyne - updated for Minecraft 1.17 - 26.3 by CreativeDM");
         saveDefaultConfig();
 
         this.createFiles();

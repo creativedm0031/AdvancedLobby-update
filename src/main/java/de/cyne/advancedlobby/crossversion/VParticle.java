@@ -52,13 +52,32 @@ public class VParticle {
         LEGACY_NAMES.put("MOB_APPEARANCE", "ELDER_GUARDIAN");
     }
 
+    /**
+     * Resolves a particle by name. Works with both the legacy (pre 1.20.5) and the current names,
+     * on old and new servers.
+     */
     public static Particle getParticle(String name) {
         String upper = name.toUpperCase(Locale.ROOT);
-        String mapped = LEGACY_NAMES.getOrDefault(upper, upper);
+        Particle particle = byName(upper);
+        if (particle == null && LEGACY_NAMES.containsKey(upper)) {
+            particle = byName(LEGACY_NAMES.get(upper));
+        }
+        if (particle == null) {
+            for (Map.Entry<String, String> entry : LEGACY_NAMES.entrySet()) {
+                if (entry.getValue().equals(upper) && (particle = byName(entry.getKey())) != null) break;
+            }
+        }
+        if (particle == null) {
+            throw new IllegalArgumentException("Unknown particle: " + name);
+        }
+        return particle;
+    }
+
+    private static Particle byName(String name) {
         try {
-            return Particle.valueOf(mapped);
+            return Particle.valueOf(name);
         } catch (IllegalArgumentException ex) {
-            return Particle.valueOf(upper);
+            return null;
         }
     }
 

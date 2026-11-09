@@ -1,8 +1,8 @@
 #
 #  ____ ___  _  _ ____ _  _ ____ ____ ___  _    ____ ___  ___  _   _
 #  |__| |  \ |  | |__| |\ | |    |___ |  \ |    |  | |__] |__]  \_/
-#  |  | |__/  \/  |  | | \| |___ |___ |__/ |___ |__| |__] |__]   |    v2.0 by cyne
-#                                                                    updated for 26.3 by CreativeDM
+#  |  | |__/  \/  |  | | \| |___ |___ |__/ |___ |__| |__] |__]   |    v2.1 by cyne
+#                                                                    updated for 1.17 - 26.3 by CreativeDM
 #
 #   In many sections you can use placeholders. Either by the plugin itself or PlaceholderAPI (if installed).
 #   Visit https://www.spigotmc.org/wiki/placeholderapi-placeholders/ to see all PlaceholderAPI placeholders.
@@ -94,7 +94,7 @@ jumppads:
 #Motd settings
 motd:
   enabled: true
-  first_line: '  &bAdvancedLobby &8▶ &7Minecraft Network &8┃ &8[&f26.3&8]'
+  first_line: '  &bAdvancedLobby &8▶ &7Minecraft Network &8┃ &8[&f1.17&8-&f26.3&8]'
   second_line: '          &aNow &a&lONLINE &8● &7Twitter &8» §f@Unknown'
 
 #Chat format settings

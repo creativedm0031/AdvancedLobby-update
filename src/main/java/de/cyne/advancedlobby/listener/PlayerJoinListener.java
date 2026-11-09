@@ -1,6 +1,6 @@
 package de.cyne.advancedlobby.listener;
 
-import org.bukkit.attribute.Attribute;
+import de.cyne.advancedlobby.crossversion.VCompat;
 import de.cyne.advancedlobby.AdvancedLobby;
 import de.cyne.advancedlobby.itembuilder.ItemBuilder;
 import de.cyne.advancedlobby.locale.Locale;
@@ -30,7 +30,7 @@ public class PlayerJoinListener implements Listener {
         e.setJoinMessage(Locale.JOIN_MESSAGE.getMessage(p).replace("%player%", AdvancedLobby.getName(p)));
 
         double health = AdvancedLobby.cfg.getDouble("player_join.health");
-        p.getAttribute(Attribute.MAX_HEALTH).setBaseValue(health);
+        VCompat.setMaxHealth(p, health);
         p.setHealth(health);
 
         p.setFoodLevel(20);
