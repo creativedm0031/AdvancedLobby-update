@@ -17,7 +17,7 @@ public class PlayerInteractEntityListener implements Listener {
             if (e.getRightClicked().getType() == EntityType.ITEM_FRAME && !AdvancedLobby.build.contains(p)) {
                 e.setCancelled(true);
             }
-            if (p.getItemInHand().getType() == Material.NAME_TAG && !AdvancedLobby.build.contains(p)) {
+            if (p.getInventory().getItemInMainHand().getType() == Material.NAME_TAG && !AdvancedLobby.build.contains(p)) {
                 e.setCancelled(true);
             }
         }

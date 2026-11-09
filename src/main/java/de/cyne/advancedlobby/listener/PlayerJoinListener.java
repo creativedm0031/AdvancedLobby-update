@@ -1,5 +1,6 @@
 package de.cyne.advancedlobby.listener;
 
+import org.bukkit.attribute.Attribute;
 import de.cyne.advancedlobby.AdvancedLobby;
 import de.cyne.advancedlobby.itembuilder.ItemBuilder;
 import de.cyne.advancedlobby.locale.Locale;
@@ -29,7 +30,7 @@ public class PlayerJoinListener implements Listener {
         e.setJoinMessage(Locale.JOIN_MESSAGE.getMessage(p).replace("%player%", AdvancedLobby.getName(p)));
 
         double health = AdvancedLobby.cfg.getDouble("player_join.health");
-        p.setMaxHealth(health);
+        p.getAttribute(Attribute.MAX_HEALTH).setBaseValue(health);
         p.setHealth(health);
 
         p.setFoodLevel(20);
@@ -182,17 +183,17 @@ public class PlayerJoinListener implements Listener {
         for (Player players : AdvancedLobby.playerHider.keySet()) {
             if (AdvancedLobby.playerHider.get(players) == HiderType.VIP) {
                 if (!p.hasPermission("advancedlobby.player_hider.bypass")) {
-                    players.hidePlayer(p);
+                    players.hidePlayer(AdvancedLobby.getInstance(), p);
                 }
             }
             if (AdvancedLobby.playerHider.get(players) == HiderType.NONE) {
-                players.hidePlayer(p);
+                players.hidePlayer(AdvancedLobby.getInstance(), p);
             }
         }
 
         for (Player players : AdvancedLobby.silentLobby) {
-            players.hidePlayer(p);
-            p.hidePlayer(players);
+            players.hidePlayer(AdvancedLobby.getInstance(), p);
+            p.hidePlayer(AdvancedLobby.getInstance(), players);
         }
 
         if (!p.hasPlayedBefore()) {

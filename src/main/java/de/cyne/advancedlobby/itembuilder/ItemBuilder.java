@@ -1,20 +1,27 @@
 package de.cyne.advancedlobby.itembuilder;
 
-import com.mojang.authlib.GameProfile;
-import com.mojang.authlib.properties.Property;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
+import org.bukkit.profile.PlayerProfile;
+import org.bukkit.profile.PlayerTextures;
 
-import java.lang.reflect.Field;
+import java.net.URI;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
 public class ItemBuilder extends ItemStack {
+
+    private static final Pattern TEXTURE_URL = Pattern.compile("\"url\"\\s*:\\s*\"([^\"]+)\"");
 
     private ItemMeta meta;
 
@@ -59,14 +66,22 @@ public class ItemBuilder extends ItemStack {
         return this.build();
     }
 
+    /**
+     * Applies a base64 encoded skin texture (as used by e.g. minecraft-heads.com) to a player head.
+     */
     public ItemBuilder setSkullOwner(String texture) {
         try {
             SkullMeta skullMeta = (SkullMeta) this.meta;
-            GameProfile profile = new GameProfile(UUID.randomUUID(), null);
-            profile.getProperties().put("textures", new Property("textures", texture));
-            Field field = skullMeta.getClass().getDeclaredField("profile");
-            field.setAccessible(true);
-            field.set(skullMeta, profile);
+            String decoded = new String(Base64.getDecoder().decode(texture), StandardCharsets.UTF_8);
+            Matcher matcher = TEXTURE_URL.matcher(decoded);
+            if (!matcher.find()) {
+                return this.build();
+            }
+            PlayerProfile profile = Bukkit.createPlayerProfile(UUID.randomUUID(), "AdvancedLobby");
+            PlayerTextures textures = profile.getTextures();
+            textures.setSkin(URI.create(matcher.group(1)).toURL());
+            profile.setTextures(textures);
+            skullMeta.setOwnerProfile(profile);
         } catch (Exception ex) {
             ex.printStackTrace();
         }

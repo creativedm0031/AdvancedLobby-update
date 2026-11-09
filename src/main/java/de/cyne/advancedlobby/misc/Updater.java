@@ -25,6 +25,8 @@ public class Updater {
     }
 
     public void checkLatestVersion() {
+        this.updateResult = null;
+        this.latestVersion = null;
         try {
             HttpURLConnection httpConnection = (HttpURLConnection) new URL("https://api.spigotmc.org/legacy/update.php?resource=" + this.resourceId)
                     .openConnection();
@@ -35,14 +37,26 @@ public class Updater {
     }
 
     public void compareVersions() {
-        long currentVersionCompact = Long.parseLong(currentVersion.replace(".", ""));
-        long latestVersionCompact = Long.parseLong(latestVersion.replace(".", ""));
-
-        if (currentVersionCompact == latestVersionCompact) {
-            this.setUpdateResult(UpdateResult.NO_UPDATE);
+        if (this.updateResult == UpdateResult.CONNECTION_ERROR || latestVersion == null) {
+            this.setUpdateResult(UpdateResult.CONNECTION_ERROR);
             return;
         }
-        this.setUpdateResult(UpdateResult.UPDATE_AVAILABLE);
+        if (compare(latestVersion.trim(), currentVersion) > 0) {
+            this.setUpdateResult(UpdateResult.UPDATE_AVAILABLE);
+            return;
+        }
+        this.setUpdateResult(UpdateResult.NO_UPDATE);
+    }
+
+    private static int compare(String a, String b) {
+        String[] pa = a.split("[^0-9]+");
+        String[] pb = b.split("[^0-9]+");
+        for (int i = 0; i < Math.max(pa.length, pb.length); i++) {
+            long x = i < pa.length && !pa[i].isEmpty() ? Long.parseLong(pa[i]) : 0;
+            long y = i < pb.length && !pb[i].isEmpty() ? Long.parseLong(pb[i]) : 0;
+            if (x != y) return Long.compare(x, y);
+        }
+        return 0;
     }
 
     public void run() {

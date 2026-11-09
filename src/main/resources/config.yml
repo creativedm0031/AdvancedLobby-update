@@ -192,7 +192,7 @@ inventories:
     #To add new items to the teleporter use the following template:
     #
     #example:
-    #  material: GRASS
+    #  material: SHORT_GRASS
     #  subid: 0
     #  displayname: '&8● &bExample'
     #  lore:

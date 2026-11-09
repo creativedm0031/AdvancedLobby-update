@@ -1,91 +1,105 @@
 package de.cyne.advancedlobby.crossversion;
 
-import de.cyne.advancedlobby.AdvancedLobby;
-import de.cyne.advancedlobby.misc.ReflectionHelper;
+import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.Particle;
-import org.bukkit.World;
 import org.bukkit.entity.Player;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
+import java.util.concurrent.ThreadLocalRandom;
 
+/**
+ * Particle helper. Accepts both the current Bukkit particle names and the legacy (pre 1.20.5)
+ * names that are still used in this plugin and in older configurations.
+ */
 public class VParticle {
 
-    private static Constructor<?> PACKET_PARTICLE;
-    private static Class<?> ENUM_PARTICLE;
+    private static final Map<String, String> LEGACY_NAMES = new HashMap<>();
 
-    private static Method WORLD_GET_HANDLE;
-    private static Method WORLD_SEND_PARTICLE;
-
-    private static Method PLAYER_GET_HANDLE;
-    private static Field PLAYER_CONNECTION;
-    private static Method SEND_PACKET;
-
-    public static void sendParticle(Object receiver, String particle, double x, double y, double z, int count, double offsetX, double offsetY, double offsetZ, double extra) {
-        try {
-            Class<?> packetParticleClass = ReflectionHelper.getNMSClass("PacketPlayOutWorldParticles");
-            Class<?> playerClass = ReflectionHelper.getNMSClass("EntityPlayer");
-            Class<?> playerConnectionClass = ReflectionHelper.getNMSClass("PlayerConnection");
-            Class<?> worldClass = ReflectionHelper.getNMSClass("WorldServer");
-            Class<?> entityPlayerClass = ReflectionHelper.getNMSClass("EntityPlayer");
-
-            Class<?> craftPlayerClass = ReflectionHelper.getOBCClass("entity.CraftPlayer");
-            Class<?> craftWorldClass = ReflectionHelper.getOBCClass("CraftWorld");
-
-            ENUM_PARTICLE = ReflectionHelper.getNMSClass("EnumParticle");
-
-            PACKET_PARTICLE = packetParticleClass.getConstructor(ENUM_PARTICLE, boolean.class, float.class,
-                    float.class, float.class, float.class, float.class, float.class, float.class, int.class,
-                    int[].class);
-            WORLD_SEND_PARTICLE = worldClass.getDeclaredMethod("sendParticles", entityPlayerClass, ENUM_PARTICLE,
-                    boolean.class, double.class, double.class, double.class, int.class, double.class, double.class,
-                    double.class, double.class, int[].class);
-
-
-            WORLD_GET_HANDLE = craftWorldClass.getDeclaredMethod("getHandle");
-            PLAYER_GET_HANDLE = craftPlayerClass.getDeclaredMethod("getHandle");
-            PLAYER_CONNECTION = playerClass.getField("playerConnection");
-            SEND_PACKET = playerConnectionClass.getMethod("sendPacket", ReflectionHelper.getNMSClass("Packet"));
-        } catch (ReflectiveOperationException e) {
-            e.printStackTrace();
-        }
-
-        try {
-            if (receiver instanceof World) {
-                Object worldServer = WORLD_GET_HANDLE.invoke(receiver);
-                WORLD_SEND_PARTICLE.invoke(worldServer, null, getEnumParticle(particle), true, x, y, z, count, offsetX, offsetY, offsetZ, extra, null);
-            } else if (receiver instanceof Player) {
-                Object packet = PACKET_PARTICLE.newInstance(getEnumParticle(particle), true, (float) x, (float) y,
-                        (float) z, (float) offsetX, (float) offsetY, (float) offsetZ, (float) extra, count, null);
-                Object entityPlayer = PLAYER_GET_HANDLE.invoke(receiver);
-                Object playerConnection = PLAYER_CONNECTION.get(entityPlayer);
-                SEND_PACKET.invoke(playerConnection, packet);
-            }
-        } catch (ReflectiveOperationException e) {
-            e.printStackTrace();
-        }
+    static {
+        LEGACY_NAMES.put("SPELL", "EFFECT");
+        LEGACY_NAMES.put("SPELL_MOB", "ENTITY_EFFECT");
+        LEGACY_NAMES.put("SPELL_INSTANT", "INSTANT_EFFECT");
+        LEGACY_NAMES.put("SPELL_WITCH", "WITCH");
+        LEGACY_NAMES.put("EXPLOSION_NORMAL", "POOF");
+        LEGACY_NAMES.put("EXPLOSION_LARGE", "EXPLOSION");
+        LEGACY_NAMES.put("EXPLOSION_HUGE", "EXPLOSION_EMITTER");
+        LEGACY_NAMES.put("FIREWORKS_SPARK", "FIREWORK");
+        LEGACY_NAMES.put("VILLAGER_HAPPY", "HAPPY_VILLAGER");
+        LEGACY_NAMES.put("VILLAGER_ANGRY", "ANGRY_VILLAGER");
+        LEGACY_NAMES.put("REDSTONE", "DUST");
+        LEGACY_NAMES.put("SMOKE_NORMAL", "SMOKE");
+        LEGACY_NAMES.put("SMOKE_LARGE", "LARGE_SMOKE");
+        LEGACY_NAMES.put("WATER_BUBBLE", "BUBBLE");
+        LEGACY_NAMES.put("WATER_SPLASH", "SPLASH");
+        LEGACY_NAMES.put("WATER_WAKE", "FISHING");
+        LEGACY_NAMES.put("SUSPENDED", "UNDERWATER");
+        LEGACY_NAMES.put("SUSPENDED_DEPTH", "UNDERWATER");
+        LEGACY_NAMES.put("CRIT_MAGIC", "ENCHANTED_HIT");
+        LEGACY_NAMES.put("ENCHANTMENT_TABLE", "ENCHANT");
+        LEGACY_NAMES.put("DRIP_WATER", "DRIPPING_WATER");
+        LEGACY_NAMES.put("DRIP_LAVA", "DRIPPING_LAVA");
+        LEGACY_NAMES.put("SNOWBALL", "ITEM_SNOWBALL");
+        LEGACY_NAMES.put("SNOW_SHOVEL", "ITEM_SNOWBALL");
+        LEGACY_NAMES.put("SLIME", "ITEM_SLIME");
+        LEGACY_NAMES.put("TOWN_AURA", "MYCELIUM");
+        LEGACY_NAMES.put("ITEM_CRACK", "ITEM");
+        LEGACY_NAMES.put("BLOCK_CRACK", "BLOCK");
+        LEGACY_NAMES.put("BLOCK_DUST", "BLOCK");
+        LEGACY_NAMES.put("TOTEM", "TOTEM_OF_UNDYING");
+        LEGACY_NAMES.put("MOB_APPEARANCE", "ELDER_GUARDIAN");
     }
 
-    private static Object getEnumParticle(String particleType) {
-        return ReflectionHelper.enumValueOf(ENUM_PARTICLE, particleType);
+    public static Particle getParticle(String name) {
+        String upper = name.toUpperCase(Locale.ROOT);
+        String mapped = LEGACY_NAMES.getOrDefault(upper, upper);
+        try {
+            return Particle.valueOf(mapped);
+        } catch (IllegalArgumentException ex) {
+            return Particle.valueOf(upper);
+        }
     }
 
     public static void spawnParticle(Player player, String particle, Location location, int count) {
-        if (AdvancedLobby.isOneEightVersion()) {
-            VParticle.sendParticle(player, particle, location.getX(), location.getY(), location.getZ(), count, 0.0D, 0.0D, 0.0D, 0.0D);
-        } else {
-            player.spawnParticle(Particle.valueOf(particle), location, count, 0.0D, 0.0D, 0.0D, 0.0D);
-        }
+        spawnParticle(player, particle, location, count, 0.0D, 0.0D, 0.0D, 0.0D);
     }
 
     public static void spawnParticle(Player player, String particle, Location location, int count, double offsetX, double offsetY, double offsetZ, double extra) {
-        if (AdvancedLobby.isOneEightVersion()) {
-            VParticle.sendParticle(player, particle, location.getX(), location.getY(), location.getZ(), count, offsetX, offsetY, offsetZ, extra);
+        Particle type = getParticle(particle);
+        Object data = defaultData(type);
+        if (data != null) {
+            player.spawnParticle(type, location, count, offsetX, offsetY, offsetZ, extra, data);
         } else {
-            player.spawnParticle(Particle.valueOf(particle), location, count, offsetX, offsetY, offsetZ, extra);
+            player.spawnParticle(type, location, count, offsetX, offsetY, offsetZ, extra);
         }
+    }
+
+    /**
+     * Some particles require additional data since 1.20.5 (e.g. ENTITY_EFFECT needs a colour, DUST needs
+     * DustOptions). A random colour is used so that e.g. the "rainbow" cosmetic keeps its look.
+     */
+    private static Object defaultData(Particle type) {
+        Class<?> dataType = type.getDataType();
+        if (dataType == Color.class) {
+            return randomColor();
+        }
+        if (dataType == Particle.DustOptions.class) {
+            return new Particle.DustOptions(randomColor(), 1.0f);
+        }
+        if (dataType == Float.class) {
+            return 0.0f;
+        }
+        if (dataType == Integer.class) {
+            return 0;
+        }
+        return null;
+    }
+
+    private static Color randomColor() {
+        java.awt.Color c = java.awt.Color.getHSBColor(ThreadLocalRandom.current().nextFloat(), 1.0f, 1.0f);
+        return Color.fromRGB(c.getRed(), c.getGreen(), c.getBlue());
     }
 
 }

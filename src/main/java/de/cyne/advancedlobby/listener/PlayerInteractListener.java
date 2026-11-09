@@ -28,7 +28,7 @@ public class PlayerInteractListener implements Listener {
     @EventHandler
     public void onPlayerInteract(PlayerInteractEvent e) {
         Player p = e.getPlayer();
-        ItemStack item = p.getItemInHand();
+        ItemStack item = p.getInventory().getItemInMainHand();
 
         if (!AdvancedLobby.multiWorld_mode | AdvancedLobby.lobbyWorlds.contains(p.getWorld())) {
             if (e.getAction() == Action.PHYSICAL) {
@@ -146,11 +146,11 @@ public class PlayerInteractListener implements Listener {
                                             (short) AdvancedLobby.cfg.getInt("hotbar_items.player_hider.show_all.subid"))
                                             .setDisplayName(AdvancedLobby.getString("hotbar_items.player_hider.show_all.displayname"))
                                             .setLore(AdvancedLobby.cfg.getStringList("hotbar_items.player_hider.show_all.lore"));
-                                    p.setItemInHand(hider_all);
+                                    p.getInventory().setItemInMainHand(hider_all);
                                     for (Player players : Bukkit.getOnlinePlayers()) {
                                         if (p != players) {
                                             if (!AdvancedLobby.silentLobby.contains(players)) {
-                                                p.showPlayer(players);
+                                                p.showPlayer(AdvancedLobby.getInstance(), players);
                                             }
                                         }
                                     }
@@ -166,9 +166,9 @@ public class PlayerInteractListener implements Listener {
                                             (short) AdvancedLobby.cfg.getInt("hotbar_items.player_hider.show_none.subid"))
                                             .setDisplayName(AdvancedLobby.getString("hotbar_items.player_hider.show_none.displayname"))
                                             .setLore(AdvancedLobby.cfg.getStringList("hotbar_items.player_hider.show_none.lore"));
-                                    p.setItemInHand(hider_none);
+                                    p.getInventory().setItemInMainHand(hider_none);
                                     for (Player players : Bukkit.getOnlinePlayers()) {
-                                        p.hidePlayer(players);
+                                        p.hidePlayer(AdvancedLobby.getInstance(), players);
                                     }
                                     return;
                                 }
@@ -183,10 +183,10 @@ public class PlayerInteractListener implements Listener {
                                     (short) AdvancedLobby.cfg.getInt("hotbar_items.player_hider.show_vip.subid"))
                                     .setDisplayName(AdvancedLobby.getString("hotbar_items.player_hider.show_vip.displayname"))
                                     .setLore(AdvancedLobby.cfg.getStringList("hotbar_items.player_hider.show_vip.lore"));
-                            p.setItemInHand(hider_vip);
+                            p.getInventory().setItemInMainHand(hider_vip);
                             for (Player players : Bukkit.getOnlinePlayers()) {
                                 if (!players.hasPermission("advancedlobby.player_hider.bypass")) {
-                                    p.hidePlayer(players);
+                                    p.hidePlayer(AdvancedLobby.getInstance(), players);
                                 }
                             }
                             return;
@@ -219,8 +219,8 @@ public class PlayerInteractListener implements Listener {
 
                                 for (Player players : Bukkit.getOnlinePlayers()) {
                                     if (players != p) {
-                                        players.hidePlayer(p);
-                                        p.hidePlayer(players);
+                                        players.hidePlayer(AdvancedLobby.getInstance(), p);
+                                        p.hidePlayer(AdvancedLobby.getInstance(), players);
                                     }
                                 }
                                 ItemStack silentlobby_active = new ItemBuilder(
@@ -228,7 +228,7 @@ public class PlayerInteractListener implements Listener {
                                         1, (short) AdvancedLobby.cfg.getInt("hotbar_items.silentlobby.activated.subid"))
                                         .setDisplayName(AdvancedLobby.getString("hotbar_items.silentlobby.activated.displayname"))
                                         .setLore(AdvancedLobby.cfg.getStringList("hotbar_items.silentlobby.activated.lore"));
-                                p.setItemInHand(silentlobby_active);
+                                p.getInventory().setItemInMainHand(silentlobby_active);
 
                                 ItemStack hider_none = new ItemBuilder(
                                         AdvancedLobby.getMaterial("hotbar_items.player_hider.show_none.material"), 1,
@@ -240,8 +240,8 @@ public class PlayerInteractListener implements Listener {
                                 }
 
                                 for (Player players : Bukkit.getOnlinePlayers()) {
-                                    p.hidePlayer(players);
-                                    players.hidePlayer(p);
+                                    p.hidePlayer(AdvancedLobby.getInstance(), players);
+                                    players.hidePlayer(AdvancedLobby.getInstance(), p);
                                 }
                                 if (Cosmetics.balloons.containsKey(p)) {
                                     Bukkit.getScheduler().scheduleSyncDelayedTask(AdvancedLobby.getInstance(), () -> Cosmetics.balloons.get(p).remove(), 5L);
@@ -258,7 +258,7 @@ public class PlayerInteractListener implements Listener {
                                     (short) AdvancedLobby.cfg.getInt("hotbar_items.silentlobby.deactivated.subid"))
                                     .setDisplayName(AdvancedLobby.getString("hotbar_items.silentlobby.deactivated.displayname"))
                                     .setLore(AdvancedLobby.cfg.getStringList("hotbar_items.silentlobby.deactivated.lore"));
-                            p.setItemInHand(silentlobby_deactive);
+                            p.getInventory().setItemInMainHand(silentlobby_deactive);
 
                             ItemStack hider_all = new ItemBuilder(
                                     AdvancedLobby.getMaterial("hotbar_items.player_hider.show_all.material"), 1,
@@ -274,16 +274,16 @@ public class PlayerInteractListener implements Listener {
                                     if (!AdvancedLobby.silentLobby.contains(players)) {
                                         if (AdvancedLobby.playerHider.containsKey(players)) {
                                             if (AdvancedLobby.playerHider.get(players) == HiderType.VIP && p.hasPermission("advancedlobby.player_hider.bypass")) {
-                                                players.showPlayer(p);
+                                                players.showPlayer(AdvancedLobby.getInstance(), p);
                                             }
                                             if (AdvancedLobby.playerHider.get(players) == HiderType.NONE) {
-                                                players.hidePlayer(p);
+                                                players.hidePlayer(AdvancedLobby.getInstance(), p);
                                             }
-                                            p.showPlayer(players);
+                                            p.showPlayer(AdvancedLobby.getInstance(), players);
                                             return;
                                         } else {
-                                            p.showPlayer(players);
-                                            players.showPlayer(p);
+                                            p.showPlayer(AdvancedLobby.getInstance(), players);
+                                            players.showPlayer(AdvancedLobby.getInstance(), p);
                                         }
                                     }
                                 }
@@ -316,7 +316,7 @@ public class PlayerInteractListener implements Listener {
                                         (short) AdvancedLobby.cfg.getInt("hotbar_items.shield.activated.subid"))
                                         .setDisplayName(AdvancedLobby.getString("hotbar_items.shield.activated.displayname"))
                                         .setLore(AdvancedLobby.cfg.getStringList("hotbar_items.shield.activated.lore"));
-                                p.setItemInHand(shield_active);
+                                p.getInventory().setItemInMainHand(shield_active);
 
                                 for (Entity entities : p.getNearbyEntities(2.5D, 2.5D, 2.5D)) {
                                     if (entities instanceof Player) {
@@ -357,7 +357,7 @@ public class PlayerInteractListener implements Listener {
                                     (short) AdvancedLobby.cfg.getInt("hotbar_items.shield.deactivated.subid"))
                                     .setDisplayName(AdvancedLobby.getString("hotbar_items.shield.deactivated.displayname"))
                                     .setLore(AdvancedLobby.cfg.getStringList("hotbar_items.shield.deactivated.lore"));
-                            p.setItemInHand(shield_deactive);
+                            p.getInventory().setItemInMainHand(shield_deactive);
                             return;
                         }
                     }

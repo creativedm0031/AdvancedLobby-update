@@ -74,9 +74,9 @@ public class AdvancedLobby extends JavaPlugin {
         }
 
         updater = new Updater(35799);
-        Bukkit.getScheduler().scheduleSyncRepeatingTask(AdvancedLobby.getInstance(), () -> {
+        Bukkit.getScheduler().runTaskTimerAsynchronously(AdvancedLobby.getInstance(), () -> {
             updater.run();
-        }, 0L, 20 * 60 * 60 * 24); //once a day
+        }, 0L, 20L * 60 * 60 * 24); //once a day
 
         if (cfg.getBoolean("actionbar.enabled")) {
             actionbarMessages.addAll(AdvancedLobby.cfg.getStringList("actionbar.messages"));
@@ -171,9 +171,7 @@ public class AdvancedLobby extends JavaPlugin {
         Bukkit.getPluginManager().registerEvents(new PlayerMoveListener(), AdvancedLobby.getInstance());
         Bukkit.getPluginManager().registerEvents(new PlayerPickupItemListener(), AdvancedLobby.getInstance());
         Bukkit.getPluginManager().registerEvents(new PlayerQuitListener(), AdvancedLobby.getInstance());
-        if (!isOneEightVersion()) {
-            Bukkit.getPluginManager().registerEvents(new PlayerSwapHandItemsListener(), AdvancedLobby.getInstance());
-        }
+        Bukkit.getPluginManager().registerEvents(new PlayerSwapHandItemsListener(), AdvancedLobby.getInstance());
         Bukkit.getPluginManager().registerEvents(new PlayerTeleportListener(), AdvancedLobby.getInstance());
         Bukkit.getPluginManager().registerEvents(new PlayerUnleashEntityListener(), AdvancedLobby.getInstance());
         Bukkit.getPluginManager().registerEvents(new ServerListPingListener(), AdvancedLobby.getInstance());
@@ -230,10 +228,14 @@ public class AdvancedLobby extends JavaPlugin {
     public static void playSound(Player player, Location location, String path) {
         try {
             if (AdvancedLobby.cfgS.getBoolean(path + ".enabled")) {
-                player.playSound(location,
-                        Sound.valueOf(AdvancedLobby.cfgS.getString(path + ".sound")),
-                        AdvancedLobby.cfgS.getInt(path + ".volume"),
-                        AdvancedLobby.cfgS.getInt(path + ".pitch"));
+                Sound sound = getSound(AdvancedLobby.cfgS.getString(path + ".sound"));
+                if (sound == null) {
+                    AdvancedLobby.errors.put(path, ErrorType.SOUND);
+                    return;
+                }
+                player.playSound(location, sound,
+                        (float) AdvancedLobby.cfgS.getDouble(path + ".volume"),
+                        (float) AdvancedLobby.cfgS.getDouble(path + ".pitch"));
             }
         } catch (Exception ex) {
             AdvancedLobby.errors.put(path, ErrorType.SOUND);
@@ -254,16 +256,37 @@ public class AdvancedLobby extends JavaPlugin {
         }
     }
 
+    /**
+     * Resolves a sound either by its Bukkit constant name (e.g. ENTITY_PLAYER_LEVELUP) or by its
+     * namespaced key (e.g. minecraft:entity.player.levelup).
+     */
+    public static Sound getSound(String name) {
+        if (name == null) return null;
+        try {
+            Object field = Sound.class.getField(name.toUpperCase(java.util.Locale.ROOT)).get(null);
+            if (field instanceof Sound) return (Sound) field;
+        } catch (ReflectiveOperationException ignored) {
+        }
+        NamespacedKey key = NamespacedKey.fromString(name.toLowerCase(java.util.Locale.ROOT));
+        return key == null ? null : Registry.SOUNDS.get(key);
+    }
+
     public static String getVersion() {
-        return Bukkit.getServer().getClass().getPackage().getName().split("\\.")[3];
+        return Bukkit.getBukkitVersion();
     }
 
+    /**
+     * Legacy (pre 1.13) servers are no longer supported. Kept for API compatibility.
+     */
     public static boolean isLegacyVersion() {
-        return Integer.parseInt(getVersion().split("_")[1]) <= 12;
+        return false;
     }
 
+    /**
+     * 1.8 servers are no longer supported. Kept for API compatibility.
+     */
     public static boolean isOneEightVersion() {
-        return Integer.parseInt(getVersion().split("_")[1]) == 8;
+        return false;
     }
 
     public static String getString(String path) {

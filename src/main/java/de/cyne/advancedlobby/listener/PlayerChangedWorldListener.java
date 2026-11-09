@@ -1,5 +1,6 @@
 package de.cyne.advancedlobby.listener;
 
+import org.bukkit.attribute.Attribute;
 import de.cyne.advancedlobby.AdvancedLobby;
 import de.cyne.advancedlobby.cosmetics.Cosmetics;
 import de.cyne.advancedlobby.itembuilder.ItemBuilder;
@@ -27,7 +28,7 @@ public class PlayerChangedWorldListener implements Listener {
         if (AdvancedLobby.multiWorld_mode) {
             if (AdvancedLobby.lobbyWorlds.contains(p.getWorld())) {
                 double health = AdvancedLobby.cfg.getDouble("player_join.health");
-                p.setMaxHealth(health);
+                p.getAttribute(Attribute.MAX_HEALTH).setBaseValue(health);
                 p.setHealth(health);
 
                 p.setFoodLevel(20);
@@ -152,17 +153,17 @@ public class PlayerChangedWorldListener implements Listener {
                 for (Player players : AdvancedLobby.playerHider.keySet()) {
                     if (AdvancedLobby.playerHider.get(players) == HiderType.VIP) {
                         if (!p.hasPermission("advancedlobby.player_hider.bypass")) {
-                            players.hidePlayer(p);
+                            players.hidePlayer(AdvancedLobby.getInstance(), p);
                         }
                     }
                     if (AdvancedLobby.playerHider.get(players) == HiderType.NONE) {
-                        players.hidePlayer(p);
+                        players.hidePlayer(AdvancedLobby.getInstance(), p);
                     }
                 }
 
                 for (Player players : AdvancedLobby.silentLobby) {
-                    players.hidePlayer(p);
-                    p.hidePlayer(players);
+                    players.hidePlayer(AdvancedLobby.getInstance(), p);
+                    p.hidePlayer(AdvancedLobby.getInstance(), players);
                 }
 
                 if (AdvancedLobby.cfg.getBoolean("player_join.join_at_spawn")) {
@@ -189,7 +190,7 @@ public class PlayerChangedWorldListener implements Listener {
             }
 
             if (AdvancedLobby.lobbyWorlds.contains(e.getFrom()) && !AdvancedLobby.lobbyWorlds.contains(p.getWorld())) {
-                p.setMaxHealth(20);
+                p.getAttribute(Attribute.MAX_HEALTH).setBaseValue(20);
                 if (Cosmetics.balloons.containsKey(p)) {
                     Bukkit.getScheduler().scheduleSyncDelayedTask(AdvancedLobby.getInstance(), () -> Cosmetics.balloons.get(p).remove(), 5L);
                 }
@@ -205,7 +206,7 @@ public class PlayerChangedWorldListener implements Listener {
 
                 for (Player players : Bukkit.getOnlinePlayers()) {
                     if (!AdvancedLobby.silentLobby.contains(players)) {
-                        p.showPlayer(players);
+                        p.showPlayer(AdvancedLobby.getInstance(), players);
                     }
                 }
 

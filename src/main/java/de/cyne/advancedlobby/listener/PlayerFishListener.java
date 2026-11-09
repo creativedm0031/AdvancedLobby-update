@@ -30,8 +30,8 @@ public class PlayerFishListener implements Listener {
         }
 
         String gadgetName = ChatColor.stripColor(AdvancedLobby.getString("hotbar_items.gadget.equipped.displayname").replaceAll("%gadget%", AdvancedLobby.getString("inventories.cosmetics_gadgets.grappling_hook_gadget.displayname")));
-        if (p.getItemInHand().hasItemMeta() && ChatColor.stripColor(p.getItemInHand().getItemMeta().getDisplayName()).equals(gadgetName)) {
-            //if(p.getItemInHand().hasItemMeta() && p.getItemInHand().getItemMeta().getDisplayName().equals("§bGrappling hook §8× §7rightclick")) {
+        if (p.getInventory().getItemInMainHand().hasItemMeta() && ChatColor.stripColor(p.getInventory().getItemInMainHand().getItemMeta().getDisplayName()).equals(gadgetName)) {
+            //if(p.getInventory().getItemInMainHand().hasItemMeta() && p.getInventory().getItemInMainHand().getItemMeta().getDisplayName().equals("§bGrappling hook §8× §7rightclick")) {
             if (!AdvancedLobby.multiWorld_mode | AdvancedLobby.lobbyWorlds.contains(p.getWorld())) {
                 if (!AdvancedLobby.build.contains(p)) {
                     if (hook.getLocation().subtract(0, 1, 0).getBlock().getType() != Material.AIR) {

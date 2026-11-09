@@ -1,8 +1,8 @@
 name: AdvancedLobby
-version: 1.2
+version: ${project.version}
 author: cyne
 main: de.cyne.advancedlobby.AdvancedLobby
-api-version: 1.13
+api-version: '26.3'
 softdepend: [PlaceholderAPI]
 
 commands:
