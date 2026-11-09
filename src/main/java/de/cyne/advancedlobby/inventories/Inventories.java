@@ -1,6 +1,7 @@
 package de.cyne.advancedlobby.inventories;
 
 import de.cyne.advancedlobby.AdvancedLobby;
+import de.cyne.advancedlobby.crossversion.VCompat;
 import de.cyne.advancedlobby.crossversion.VMaterial;
 import de.cyne.advancedlobby.itembuilder.ItemBuilder;
 import org.bukkit.Bukkit;
@@ -131,7 +132,7 @@ public class Inventories {
                 AdvancedLobby.getString("inventories.cosmetics_particles.title"));
 
         ItemStack redstone = new ItemBuilder(Material.REDSTONE).setDisplayName(AdvancedLobby.getString("inventories.cosmetics_particles.heart_particles.displayname")).setLore(AdvancedLobby.cfg.getStringList("inventories.cosmetics_particles.heart_particles.lore"));
-        ItemStack record_10 = new ItemBuilder(VMaterial.MUSIC_DISC_STRAD.getType()).addItemFlags(ItemFlag.HIDE_ADDITIONAL_TOOLTIP).setDisplayName(AdvancedLobby.getString("inventories.cosmetics_particles.music_particles.displayname")).setLore(AdvancedLobby.cfg.getStringList("inventories.cosmetics_particles.music_particles.lore"));
+        ItemStack record_10 = new ItemBuilder(VMaterial.MUSIC_DISC_STRAD.getType()).addItemFlags(VCompat.itemFlags("HIDE_ADDITIONAL_TOOLTIP", "HIDE_POTION_EFFECTS")).setDisplayName(AdvancedLobby.getString("inventories.cosmetics_particles.music_particles.displayname")).setLore(AdvancedLobby.cfg.getStringList("inventories.cosmetics_particles.music_particles.lore"));
         ItemStack fireball = new ItemBuilder(VMaterial.FIRE_CHARGE.getType()).setDisplayName(AdvancedLobby.getString("inventories.cosmetics_particles.flames_particles.displayname")).setLore(AdvancedLobby.cfg.getStringList("inventories.cosmetics_particles.flames_particles.lore"));
         ItemStack emerald = new ItemBuilder(Material.EMERALD).setDisplayName(AdvancedLobby.getString("inventories.cosmetics_particles.villager_particles.displayname")).setLore(AdvancedLobby.cfg.getStringList("inventories.cosmetics__particles.villager_particles.lore"));
         ItemStack nether_star = new ItemBuilder(Material.NETHER_STAR).setDisplayName(AdvancedLobby.getString("inventories.cosmetics_particles.rainbow_particles.displayname")).setLore(AdvancedLobby.cfg.getStringList("inventories.cosmetics_particles.rainbow_particles.lore"));

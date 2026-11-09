@@ -1,6 +1,6 @@
 package de.cyne.advancedlobby.listener;
 
-import org.bukkit.attribute.Attribute;
+import de.cyne.advancedlobby.crossversion.VCompat;
 import de.cyne.advancedlobby.AdvancedLobby;
 import de.cyne.advancedlobby.cosmetics.Cosmetics;
 import de.cyne.advancedlobby.itembuilder.ItemBuilder;
@@ -28,7 +28,7 @@ public class PlayerChangedWorldListener implements Listener {
         if (AdvancedLobby.multiWorld_mode) {
             if (AdvancedLobby.lobbyWorlds.contains(p.getWorld())) {
                 double health = AdvancedLobby.cfg.getDouble("player_join.health");
-                p.getAttribute(Attribute.MAX_HEALTH).setBaseValue(health);
+                VCompat.setMaxHealth(p, health);
                 p.setHealth(health);
 
                 p.setFoodLevel(20);
@@ -190,7 +190,7 @@ public class PlayerChangedWorldListener implements Listener {
             }
 
             if (AdvancedLobby.lobbyWorlds.contains(e.getFrom()) && !AdvancedLobby.lobbyWorlds.contains(p.getWorld())) {
-                p.getAttribute(Attribute.MAX_HEALTH).setBaseValue(20);
+                VCompat.setMaxHealth(p, 20);
                 if (Cosmetics.balloons.containsKey(p)) {
                     Bukkit.getScheduler().scheduleSyncDelayedTask(AdvancedLobby.getInstance(), () -> Cosmetics.balloons.get(p).remove(), 5L);
                 }

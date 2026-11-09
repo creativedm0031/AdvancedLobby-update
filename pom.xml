@@ -6,11 +6,13 @@
 
     <groupId>de.cyne</groupId>
     <artifactId>advancedlobby</artifactId>
-    <version>2.0.1</version>
+    <version>2.1</version>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven.compiler.release>25</maven.compiler.release>
+        <maven.compiler.release>16</maven.compiler.release>
+        <!-- Compiled against the oldest supported API; newer API is resolved at runtime (see VCompat) -->
+        <spigot.version>1.17.1-R0.1-SNAPSHOT</spigot.version>
     </properties>
 
     <repositories>
@@ -28,7 +30,7 @@
         <dependency>
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot-api</artifactId>
-            <version>26.3-R0.1-SNAPSHOT</version>
+            <version>${spigot.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -40,7 +42,7 @@
     </dependencies>
 
     <build>
-        <finalName>AdvancedLobby-${project.version}-26.3</finalName>
+        <finalName>AdvancedLobby-${project.version}-1.17-26.3</finalName>
         <resources>
             <resource>
                 <directory>src/main/resources</directory>
@@ -63,7 +65,7 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.14.0</version>
                 <configuration>
-                    <release>25</release>
+                    <release>${maven.compiler.release}</release>
                 </configuration>
             </plugin>
             <plugin>

@@ -2,12 +2,12 @@
 
 ![AdvancedLobby](https://raw.githubusercontent.com/creativedm0031/AdvancedLobby-update/refs/heads/main/branding/banner.png)
 
-# AdvancedLobby × v2.0.1
+# AdvancedLobby × v2.1
 
-**Fully updated for Minecraft 26.3**
+**Fully updated for Minecraft 1.17 – 26.3**
 
 **Original plugin by cyne** • [Original resource](https://www.spigotmc.org/resources/35799/)
-**Updated for 26.3 by CreativeDM** • [Source code](https://github.com/creativedm0031/AdvancedLobby-update)
+**Updated for 1.17 – 26.3 by CreativeDM** • [Source code](https://github.com/creativedm0031/AdvancedLobby-update)
 
 </div>
 
@@ -16,14 +16,14 @@
 ## » Information
 
 AdvancedLobby is a free and fully customizable lobby plugin for your Minecraft server.
-This is an updated version of the original AdvancedLobby by **cyne**, rewritten to run on Minecraft 26.3 (Spigot & Paper). All credits for the original plugin go to cyne.
+This is an updated version of the original AdvancedLobby by **cyne**, rewritten to run on Minecraft 1.17 – 26.3 (Spigot & Paper) – one jar for all versions. All credits for the original plugin go to cyne.
 
 Currently, there are no ranks and no scoreboard implemented into the lobby plugin. Feel free to use any other plugin for ranks and the scoreboard.
 
 ## » Requirements
 
-- Minecraft **26.3** (Spigot / Paper)
-- Java **25**
+- Minecraft **1.17 – 26.3** (Spigot / Paper and forks)
+- Java **16+** for 1.17, **17+** for 1.18 – 1.20.4, **21+** for 1.20.5 – 1.21.x, **25** for 26.x
 - [PlaceholderAPI](https://www.spigotmc.org/resources/6245/) (optional, needed for placeholders)
 
 > **Note:** Minecraft 1.8 – 1.16 is no longer supported by this version. Use the original plugin for those versions.
@@ -73,6 +73,11 @@ Currently, there are no ranks and no scoreboard implemented into the lobby plugi
 
 ## » Changelog
 
+### 2.1
+- Support for Minecraft **1.17 – 26.3** in a single jar
+- Tested on Paper 1.17.1, 1.18.2, 1.19.4, 1.20.4, 1.20.6, 1.21.1, 1.21.4, 1.21.10, 26.2 and 26.3
+- Skull textures, item flags, max health and particles work on old and new versions
+
 ### 2.0.1
 - Fixed a NullPointerException on player join on Paper servers (lobby items were not given)
 - Default MOTD now shows 26.3 instead of 1.8-1.12.2 (only for new configs)
@@ -118,7 +123,7 @@ Currently, there are no ranks and no scoreboard implemented into the lobby plugi
 ## » Credits
 
 - **cyne** – original author of AdvancedLobby
-- **CreativeDM** – update to Minecraft 26.3
+- **CreativeDM** – update to Minecraft 1.17 – 26.3
 
 ---
 
