@@ -39,9 +39,9 @@ runtime in `crossversion/VCompat`, `VParticle` and `AdvancedLobby#getSound`.
 
 ## Releasing
 
-1. Bump `<version>` in `pom.xml` and merge to `main`
-2. Push a tag: `git tag v<version> && git push origin v<version>`
-3. GitHub Actions builds the jar and creates the release automatically (`.github/workflows/release.yml`)
+1. Bump `<version>` in `pom.xml`
+2. Merge to `main`
+3. GitHub Actions builds the jar and creates the release `v<version>` automatically if it does not exist yet (`.github/workflows/release.yml`)
 
 ## Changes in 2.1
 

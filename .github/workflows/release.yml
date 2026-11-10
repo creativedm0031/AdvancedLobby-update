@@ -1,11 +1,12 @@
 name: Release
 
-# Builds the plugin and publishes a GitHub release with the jar
-# whenever a version tag (e.g. v2.1) is pushed.
+# Builds the plugin and publishes a GitHub release with the jar.
+# Runs on every push to main: if no release exists yet for the version in pom.xml
+# (tag v<version>), it is created automatically. Can also be started manually.
 on:
   push:
-    tags:
-      - 'v*'
+    branches: [main]
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -22,14 +23,36 @@ jobs:
           java-version: '21'
           cache: maven
 
+      - name: Read version
+        id: version
+        run: |
+          VERSION=$(mvn -q -B help:evaluate -Dexpression=project.version -DforceStdout)
+          echo "tag=v$VERSION" >> "$GITHUB_OUTPUT"
+          echo "Version: $VERSION"
+
+      - name: Check for existing release
+        id: check
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if gh release view "${{ steps.version.outputs.tag }}" >/dev/null 2>&1; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+            echo "Release ${{ steps.version.outputs.tag }} already exists, skipping."
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Build
+        if: steps.check.outputs.exists == 'false'
         run: mvn -B clean package
 
       - name: Create release
+        if: steps.check.outputs.exists == 'false'
         env:
           GH_TOKEN: ${{ github.token }}
-          TAG: ${{ github.ref_name }}
+          TAG: ${{ steps.version.outputs.tag }}
         run: |
           gh release create "$TAG" target/AdvancedLobby-*.jar \
+            --target "$GITHUB_SHA" \
             --title "AdvancedLobby $TAG" \
             --notes "AdvancedLobby $TAG for Minecraft 1.17 - 26.3 (Spigot / Paper). Original plugin by cyne, updated by CreativeDM. See the README for the changelog."
