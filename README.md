@@ -21,6 +21,10 @@ One jar for **Minecraft 1.17 – 26.3** (Spigot / Paper and forks, Bukkit).
 Tested on Paper 1.17.1, 1.18.2, 1.19.4, 1.20.4, 1.20.6, 1.21.1, 1.21.4, 1.21.10, 26.2 and 26.3.
 Legacy versions (1.8 – 1.16) are not supported – use the original plugin for those.
 
+## Download
+
+Prebuilt jars are available on the [Releases page](https://github.com/creativedm0031/AdvancedLobby-update/releases).
+
 ## Building
 
 ```bash
@@ -32,6 +36,12 @@ The plugin jar is created at `target/AdvancedLobby-<version>-1.17-26.3.jar`.
 The plugin is compiled against the oldest supported API (`spigot-api 1.17.1`, Java 16). API that only exists
 in newer versions (player profiles, renamed attributes/item flags/particles, sound registry) is resolved at
 runtime in `crossversion/VCompat`, `VParticle` and `AdvancedLobby#getSound`.
+
+## Releasing
+
+1. Bump `<version>` in `pom.xml` and merge to `main`
+2. Push a tag: `git tag v<version> && git push origin v<version>`
+3. GitHub Actions builds the jar and creates the release automatically (`.github/workflows/release.yml`)
 
 ## Changes in 2.1
 
