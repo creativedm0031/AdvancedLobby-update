@@ -75,8 +75,8 @@
 </g>
   <g font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif">
     <text x="400" y="190" font-size="92" font-weight="800" fill="url(#txt)" letter-spacing="-2">AdvancedLobby</text>
-    <rect x="402" y="222" width="300" height="46" rx="23" fill="#6366f1" fill-opacity="0.25" stroke="#818cf8" stroke-width="2"/>
-    <text x="552" y="254" font-size="24" font-weight="700" fill="#e0e7ff" text-anchor="middle" letter-spacing="3">v2.0 · MC 26.3</text>
+    <rect x="402" y="222" width="390" height="46" rx="23" fill="#6366f1" fill-opacity="0.25" stroke="#818cf8" stroke-width="2"/>
+    <text x="597" y="254" font-size="24" font-weight="700" fill="#e0e7ff" text-anchor="middle" letter-spacing="3">v2.1 · MC 1.17 – 26.3</text>
     <text x="404" y="320" font-size="24" font-weight="500" fill="#a5b4fc">by cyne  ·  updated by CreativeDM</text>
   </g>
 </svg>
