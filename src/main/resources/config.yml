@@ -201,6 +201,8 @@ inventories:
     #  - ' &8» &7Click to teleport'
     #  slot: 13
     #  location: 'example'
+    #  # OR use server: 'survival' to connect via a Velocity/Bungee proxy.
+    #  # Do not specify both location and server for the same item.
     items:
       spawn:
         material: MAGMA_CREAM

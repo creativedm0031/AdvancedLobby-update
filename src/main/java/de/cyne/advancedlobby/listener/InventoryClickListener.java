@@ -17,6 +17,10 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.inventory.ItemStack;
+import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 
 public class InventoryClickListener implements Listener {
 
@@ -35,35 +39,74 @@ public class InventoryClickListener implements Listener {
                 if (e.getView().getTitle().equals(AdvancedLobby.getString("inventories.teleporter.title"))) {
                     e.setCancelled(true);
 
-                    for (String item : AdvancedLobby.cfg.getConfigurationSection("inventories.teleporter.items").getKeys(false)) {
-                        Material material = AdvancedLobby
-                                .getMaterial("inventories.teleporter.items." + item + ".material");
-                        if (e.getCurrentItem().getType() == material) {
+                    // Only process actual selector slots, never clicks in the player's inventory.
+                    if (e.getClickedInventory() == null || e.getClickedInventory() != e.getView().getTopInventory()) return;
 
-                            Location location = LocationManager.getLocation(
-                                    AdvancedLobby.cfg.getString("inventories.teleporter.items." + item + ".location"));
-                            if (location == null) {
-                                p.closeInventory();
-                                if (p.hasPermission("advancedlobby.admin")) {
-                                    p.sendMessage(Locale.COMPASS_LOC_NOT_FOUND_ADMIN.getMessage(p).replace("%location%",
-                                            AdvancedLobby.cfg.getString("inventories.teleporter.items." + item + ".location")));
-                                    return;
-                                }
-                                p.sendMessage(Locale.COMPASS_LOC_NOT_FOUND.getMessage(p).replace("%location%",
-                                        AdvancedLobby.cfg.getString("inventories.teleporter.items." + item + ".location")));
+                    for (String item : AdvancedLobby.cfg.getConfigurationSection("inventories.teleporter.items").getKeys(false)) {
+                        String path = "inventories.teleporter.items." + item;
+                        int configuredSlot = AdvancedLobby.cfg.getInt(path + ".slot");
+                        if (e.getSlot() != configuredSlot) continue;
+                        Material material = AdvancedLobby.getMaterial(path + ".material");
+                        ItemStack clicked = e.getCurrentItem();
+                        if (clicked.getType() != material || !clicked.hasItemMeta() || !clicked.getItemMeta().hasDisplayName()) return;
+                        String expectedName = ChatColor.translateAlternateColorCodes('&', AdvancedLobby.cfg.getString(path + ".displayname", ""));
+                        if (!clicked.getItemMeta().getDisplayName().equals(expectedName)) return;
+
+                        String server = AdvancedLobby.cfg.getString(path + ".server", "").trim();
+                        String localName = AdvancedLobby.cfg.getString(path + ".location", "").trim();
+                        if (!server.isEmpty()) {
+                            if (!localName.isEmpty()) {
+                                AdvancedLobby.getInstance().getLogger().warning("Teleporter item '" + item + "' has both server and location; choose one.");
+                                p.sendMessage(ChatColor.RED + "This destination is misconfigured. Please contact staff.");
                                 return;
                             }
-                            p.teleport(location);
-                            AdvancedLobby.playSound(p, p.getLocation(), "teleporter.teleport");
-                            VParticle.spawnParticle(p, "SPELL_WITCH", location, 64, 0.0f, 0.0f, 0.0f, 0.1f);
-                            for (Player players : Bukkit.getOnlinePlayers()) {
-                                if (p != players) {
-                                    if (!AdvancedLobby.playerHider.containsKey(players) && !AdvancedLobby.silentLobby.contains(players) && !AdvancedLobby.silentLobby.contains(p)) {
-                                        VParticle.spawnParticle(players, "SPELL_WITCH", location, 64, 0.0f, 0.0f, 0.0f, 0.1f);
-                                    }
+                            // A server name is a configured Velocity/Bungee backend identifier, not a command.
+                            if (!server.matches("[a-zA-Z0-9_-]{1,64}")) {
+                                AdvancedLobby.getInstance().getLogger().warning("Invalid proxy server name on teleporter item '" + item + "': " + server);
+                                p.sendMessage(ChatColor.RED + "This destination is misconfigured. Please contact staff.");
+                                return;
+                            }
+                            p.closeInventory();
+                            try {
+                                ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+                                DataOutputStream out = new DataOutputStream(bytes);
+                                out.writeUTF("Connect");
+                                out.writeUTF(server);
+                                p.sendPluginMessage(AdvancedLobby.getInstance(), "BungeeCord", bytes.toByteArray());
+                            } catch (IOException exception) {
+                                AdvancedLobby.getInstance().getLogger().warning("Unable to connect player to '" + server + "': " + exception.getMessage());
+                                p.sendMessage(ChatColor.RED + "Unable to request server transfer. Please contact staff.");
+                            }
+                            return;
+                        }
+                        if (localName.isEmpty()) {
+                            AdvancedLobby.getInstance().getLogger().warning("Teleporter item '" + item + "' requires either location or server.");
+                            p.sendMessage(ChatColor.RED + "This destination is not configured. Please contact staff.");
+                            return;
+                        }
+
+                        // Legacy location: behavior unchanged for local /al location destinations.
+                        Location location = LocationManager.getLocation(localName);
+                        if (location == null) {
+                            p.closeInventory();
+                            if (p.hasPermission("advancedlobby.admin")) {
+                                p.sendMessage(Locale.COMPASS_LOC_NOT_FOUND_ADMIN.getMessage(p).replace("%location%", localName));
+                            } else {
+                                p.sendMessage(Locale.COMPASS_LOC_NOT_FOUND.getMessage(p).replace("%location%", localName));
+                            }
+                            return;
+                        }
+                        p.teleport(location);
+                        AdvancedLobby.playSound(p, p.getLocation(), "teleporter.teleport");
+                        VParticle.spawnParticle(p, "SPELL_WITCH", location, 64, 0.0f, 0.0f, 0.0f, 0.1f);
+                        for (Player players : Bukkit.getOnlinePlayers()) {
+                            if (p != players) {
+                                if (!AdvancedLobby.playerHider.containsKey(players) && !AdvancedLobby.silentLobby.contains(players) && !AdvancedLobby.silentLobby.contains(p)) {
+                                    VParticle.spawnParticle(players, "SPELL_WITCH", location, 64, 0.0f, 0.0f, 0.0f, 0.1f);
                                 }
                             }
                         }
+                        return;
                     }
 
                 }

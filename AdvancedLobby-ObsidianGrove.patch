@@ -1,0 +1,202 @@
+--- a/pom.xml
++++ b/pom.xml
+@@ -6,7 +6,7 @@
+ 
+     <groupId>de.cyne</groupId>
+     <artifactId>advancedlobby</artifactId>
+-    <version>2.1</version>
++    <version>2.1.1-ObsidianGrove</version>
+ 
+     <properties>
+         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+--- a/src/main/java/de/cyne/advancedlobby/AdvancedLobby.java
++++ b/src/main/java/de/cyne/advancedlobby/AdvancedLobby.java
+@@ -97,6 +97,7 @@
+ 
+         this.registerCommands();
+         this.registerListener();
++        getServer().getMessenger().registerOutgoingPluginChannel(this, "BungeeCord");
+ 
+         Cosmetics.startBalloonTask();
+ 
+@@ -106,6 +107,7 @@
+ 
+     @Override
+     public void onDisable() {
++        getServer().getMessenger().unregisterOutgoingPluginChannel(this, "BungeeCord");
+         for (Player players : Bukkit.getOnlinePlayers()) {
+             if (Cosmetics.balloons.containsKey(players)) {
+                 Cosmetics.balloons.get(players).remove();
+--- a/src/main/java/de/cyne/advancedlobby/listener/InventoryClickListener.java
++++ b/src/main/java/de/cyne/advancedlobby/listener/InventoryClickListener.java
+@@ -17,6 +17,10 @@
+ import org.bukkit.event.inventory.ClickType;
+ import org.bukkit.event.inventory.InventoryAction;
+ import org.bukkit.event.inventory.InventoryClickEvent;
++import org.bukkit.inventory.ItemStack;
++import java.io.ByteArrayOutputStream;
++import java.io.DataOutputStream;
++import java.io.IOException;
+ 
+ public class InventoryClickListener implements Listener {
+ 
+@@ -35,35 +39,74 @@
+                 if (e.getView().getTitle().equals(AdvancedLobby.getString("inventories.teleporter.title"))) {
+                     e.setCancelled(true);
+ 
++                    // Only process actual selector slots, never clicks in the player's inventory.
++                    if (e.getClickedInventory() == null || e.getClickedInventory() != e.getView().getTopInventory()) return;
++
+                     for (String item : AdvancedLobby.cfg.getConfigurationSection("inventories.teleporter.items").getKeys(false)) {
+-                        Material material = AdvancedLobby
+-                                .getMaterial("inventories.teleporter.items." + item + ".material");
+-                        if (e.getCurrentItem().getType() == material) {
+-
+-                            Location location = LocationManager.getLocation(
+-                                    AdvancedLobby.cfg.getString("inventories.teleporter.items." + item + ".location"));
+-                            if (location == null) {
+-                                p.closeInventory();
+-                                if (p.hasPermission("advancedlobby.admin")) {
+-                                    p.sendMessage(Locale.COMPASS_LOC_NOT_FOUND_ADMIN.getMessage(p).replace("%location%",
+-                                            AdvancedLobby.cfg.getString("inventories.teleporter.items." + item + ".location")));
+-                                    return;
+-                                }
+-                                p.sendMessage(Locale.COMPASS_LOC_NOT_FOUND.getMessage(p).replace("%location%",
+-                                        AdvancedLobby.cfg.getString("inventories.teleporter.items." + item + ".location")));
++                        String path = "inventories.teleporter.items." + item;
++                        int configuredSlot = AdvancedLobby.cfg.getInt(path + ".slot");
++                        if (e.getSlot() != configuredSlot) continue;
++                        Material material = AdvancedLobby.getMaterial(path + ".material");
++                        ItemStack clicked = e.getCurrentItem();
++                        if (clicked.getType() != material || !clicked.hasItemMeta() || !clicked.getItemMeta().hasDisplayName()) return;
++                        String expectedName = ChatColor.translateAlternateColorCodes('&', AdvancedLobby.cfg.getString(path + ".displayname", ""));
++                        if (!clicked.getItemMeta().getDisplayName().equals(expectedName)) return;
++
++                        String server = AdvancedLobby.cfg.getString(path + ".server", "").trim();
++                        String localName = AdvancedLobby.cfg.getString(path + ".location", "").trim();
++                        if (!server.isEmpty()) {
++                            if (!localName.isEmpty()) {
++                                AdvancedLobby.getInstance().getLogger().warning("Teleporter item '" + item + "' has both server and location; choose one.");
++                                p.sendMessage(ChatColor.RED + "This destination is misconfigured. Please contact staff.");
+                                 return;
+                             }
+-                            p.teleport(location);
+-                            AdvancedLobby.playSound(p, p.getLocation(), "teleporter.teleport");
+-                            VParticle.spawnParticle(p, "SPELL_WITCH", location, 64, 0.0f, 0.0f, 0.0f, 0.1f);
+-                            for (Player players : Bukkit.getOnlinePlayers()) {
+-                                if (p != players) {
+-                                    if (!AdvancedLobby.playerHider.containsKey(players) && !AdvancedLobby.silentLobby.contains(players) && !AdvancedLobby.silentLobby.contains(p)) {
+-                                        VParticle.spawnParticle(players, "SPELL_WITCH", location, 64, 0.0f, 0.0f, 0.0f, 0.1f);
+-                                    }
++                            // A server name is a configured Velocity/Bungee backend identifier, not a command.
++                            if (!server.matches("[a-zA-Z0-9_-]{1,64}")) {
++                                AdvancedLobby.getInstance().getLogger().warning("Invalid proxy server name on teleporter item '" + item + "': " + server);
++                                p.sendMessage(ChatColor.RED + "This destination is misconfigured. Please contact staff.");
++                                return;
++                            }
++                            p.closeInventory();
++                            try {
++                                ByteArrayOutputStream bytes = new ByteArrayOutputStream();
++                                DataOutputStream out = new DataOutputStream(bytes);
++                                out.writeUTF("Connect");
++                                out.writeUTF(server);
++                                p.sendPluginMessage(AdvancedLobby.getInstance(), "BungeeCord", bytes.toByteArray());
++                            } catch (IOException exception) {
++                                AdvancedLobby.getInstance().getLogger().warning("Unable to connect player to '" + server + "': " + exception.getMessage());
++                                p.sendMessage(ChatColor.RED + "Unable to request server transfer. Please contact staff.");
++                            }
++                            return;
++                        }
++                        if (localName.isEmpty()) {
++                            AdvancedLobby.getInstance().getLogger().warning("Teleporter item '" + item + "' requires either location or server.");
++                            p.sendMessage(ChatColor.RED + "This destination is not configured. Please contact staff.");
++                            return;
++                        }
++
++                        // Legacy location: behavior unchanged for local /al location destinations.
++                        Location location = LocationManager.getLocation(localName);
++                        if (location == null) {
++                            p.closeInventory();
++                            if (p.hasPermission("advancedlobby.admin")) {
++                                p.sendMessage(Locale.COMPASS_LOC_NOT_FOUND_ADMIN.getMessage(p).replace("%location%", localName));
++                            } else {
++                                p.sendMessage(Locale.COMPASS_LOC_NOT_FOUND.getMessage(p).replace("%location%", localName));
++                            }
++                            return;
++                        }
++                        p.teleport(location);
++                        AdvancedLobby.playSound(p, p.getLocation(), "teleporter.teleport");
++                        VParticle.spawnParticle(p, "SPELL_WITCH", location, 64, 0.0f, 0.0f, 0.0f, 0.1f);
++                        for (Player players : Bukkit.getOnlinePlayers()) {
++                            if (p != players) {
++                                if (!AdvancedLobby.playerHider.containsKey(players) && !AdvancedLobby.silentLobby.contains(players) && !AdvancedLobby.silentLobby.contains(p)) {
++                                    VParticle.spawnParticle(players, "SPELL_WITCH", location, 64, 0.0f, 0.0f, 0.0f, 0.1f);
+                                 }
+                             }
+                         }
++                        return;
+                     }
+ 
+                 }
+--- a/src/main/resources/config.yml
++++ b/src/main/resources/config.yml
+@@ -201,6 +201,8 @@
+     #  - ' &8» &7Click to teleport'
+     #  slot: 13
+     #  location: 'example'
++    #  # OR use server: 'survival' to connect via a Velocity/Bungee proxy.
++    #  # Do not specify both location and server for the same item.
+     items:
+       spawn:
+         material: MAGMA_CREAM
+--- a/OBSIDIAN_GROVE_PATCH.md
++++ b/OBSIDIAN_GROVE_PATCH.md
+@@ -0,0 +1,48 @@
++# AdvancedLobby ObsidianGrove Server Selector
++
++For `inventories.teleporter.items.<id>`, select **one** destination: `location: spawn` (existing local teleport) or `server: survival` (Velocity/Bungee backend).
++
++Example:
++
++```yaml
++hotbar_items:
++  teleporter:
++    enabled: true
++    slot: 0
++    material: COMPASS
++    subid: 0
++    displayname: '&bTeleporter &8× &7rightclick'
++    lore: []
++  custom_item:
++    enabled: false
++
++inventories:
++  teleporter:
++    title: '&bTeleporter'
++    rows: 5
++    items:
++      survival:
++        material: GRASS_BLOCK
++        slot: 31
++        displayname: '&8● &bSurvival'
++        lore:
++          - ' &8» &7Click to join Survival'
++        subid: 0
++        server: 'survival'
++```
++
++### Requirements
++
++- Lobby backend runs AdvancedLobby.
++- Velocity's `bungee-plugin-message-channel` option must be `true` (or a BungeeCord-compatible proxy with plugin messaging enabled).
++- Backend named `survival` must exist in Velocity's `[servers]`.
++- The `BungeeCord` outgoing plugin message requests a transfer; it does **not** confirm online status or connection success. The proxy will handle failed connections.
++
++### Build
++
++```sh
++cd /srv/code/active/minecraft/AdvancedLobby-update
++mvn clean package
++```
++
++The artifact is `target/AdvancedLobby-2.1.1-ObsidianGrove-1.17-26.3.jar`. Stop the Lobby backend, back up/remove the old AdvancedLobby jar (avoid two plugin jars), install the new jar and restart.

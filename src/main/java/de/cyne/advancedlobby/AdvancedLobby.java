@@ -97,6 +97,7 @@ public class AdvancedLobby extends JavaPlugin {
 
         this.registerCommands();
         this.registerListener();
+        getServer().getMessenger().registerOutgoingPluginChannel(this, "BungeeCord");
 
         Cosmetics.startBalloonTask();
 
@@ -106,6 +107,7 @@ public class AdvancedLobby extends JavaPlugin {
 
     @Override
     public void onDisable() {
+        getServer().getMessenger().unregisterOutgoingPluginChannel(this, "BungeeCord");
         for (Player players : Bukkit.getOnlinePlayers()) {
             if (Cosmetics.balloons.containsKey(players)) {
                 Cosmetics.balloons.get(players).remove();
